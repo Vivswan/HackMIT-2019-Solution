@@ -1,0 +1,170 @@
+// Sets the border of the canvas
+$("#canvas").css("border", "1px solid white");
+
+// Display the current message when people first click inspect element
+console.log("Want to start over? Simply run `resetPuzzle()`!");
+
+// Run this to start over
+async function resetPuzzle() {
+  var truth = confirm("Are you sure? -- You put in a lot of work already!");
+  if (!truth) {
+    return;
+  }
+  localStorage.setItem("temp_storage", JSON.stringify({}));
+  localStorage.setItem("main_storage", JSON.stringify({}));
+  tempStorage = {};
+  mainStorage = {};
+  console.log("CLEARED CACHE");
+  location.reload();
+}
+
+// Get the position of the mouse relative to the canvas
+function getMousePos(canvasDom, mouseEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  return {
+    x: mouseEvent.clientX - rect.left,
+    y: mouseEvent.clientY - rect.top
+  };
+}
+localStorage.setItem("aaaa", "hi there");
+var tempStorage = JSON.parse(localStorage.getItem("temp_storage") || "{}");
+var mainStorage = JSON.parse(localStorage.getItem("main_storage") || "{}");
+var saveState = 0;
+var ppp = window.location.pathname + "/";
+
+// Updates the cache store
+function updateCacheStore(x, y, hexColor, isTruth) {
+  var storage = mainStorage;
+  if (!isTruth) {
+    storage = tempStorage;
+  }
+  if (storage[ppp + x + "_" + y] == null) {
+    storage[ppp + x + "_" + y] = hexColor;
+    if (isTruth) {
+      revealedPixels += 1;
+    }
+  }
+}
+
+// Ensure that progress is saved when user exists tab
+window.onbeforeunload = function() {
+  localStorage.setItem("temp_storage", JSON.stringify(tempStorage));
+  localStorage.setItem("main_storage", JSON.stringify(mainStorage));
+}
+
+// This function is self explainatory #imagenius
+function getCacheStore(x, y, isTruth) {
+  var storage = mainStorage;
+  if (!isTruth) {
+    storage = tempStorage;
+  }
+  return storage[ppp + x + "_" + y];
+}
+
+// This function is self explainatory #imagenius
+function fillPosition(x, y, hexColor) {
+  ctx.fillStyle = hexColor;
+  ctx.fillRect(x, y, 1, 1);
+  updateCacheStore(x, y, hexColor, true);
+}
+
+// Wow are you reading my source code comments?
+function sendRequest(x, y) {
+  x = parseInt(x);
+  y = parseInt(y);
+  if (window.myHomeAustinTexas == null) {
+    // Check if cached
+    var cachedHex = getCacheStore(x, y, false);
+    if (cachedHex != null) {
+      fillPosition(x, y, cachedHex);
+      $("#revealed-pixels").text(revealedPixels);
+      $("#smash-div").removeClass("hidden");
+      setTimeout(function() {
+        $("#smash-div").addClass("hidden");
+      }, 200);
+      return;
+    }
+  }
+  
+  // If already shown
+  if (getCacheStore(x, y, true)) {
+    return;
+  }
+  
+  $("#revealed-pixels").text(revealedPixels);
+  $("#smash-div").removeClass("hidden");
+  setTimeout(function() {
+    $("#smash-div").addClass("hidden");
+  }, 200);
+  var pathname = window.location.pathname + "/" + x + "/" + y;
+  console.log("QUERY " + pathname);
+  fetch(pathname)
+    .then(function(response) {
+      if (response.status === 429) {
+        return null;
+      }
+      if (response.status !== 200) {
+        return null;
+      }
+      return response.text();
+    }).then(function(text) {
+      if (text == null) {
+        return;
+      }
+      var lines = text.split("\n");
+      for (var ind = 0; ind < lines.length; ind += 1) {
+        var line = lines[ind].split(",");
+        var locSpl = line[0].split("_");
+        var hex = line[1];
+        if (hex.length !== 7) {
+          continue;
+        }
+
+        // Set Temp Storage for CACHE
+        updateCacheStore(parseInt(locSpl[0]), parseInt(locSpl[1]), hex, false);
+        if (ind === 0 || window.myHomeAustinTexas) {
+          fillPosition(parseInt(locSpl[0]), parseInt(locSpl[1]), hex);
+          didAction = true;
+        }
+      }
+    });
+}
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var revealedPixels = 0;
+for (var x = 0; x < 400; x += 1) {
+  for (var y = 0; y < 300; y += 1) {
+    var pixelValue = getCacheStore(x, y, true);
+    if (pixelValue != null) {
+      ctx.fillStyle = pixelValue;
+      ctx.fillRect(x, y, 1, 1);
+      revealedPixels += 1;
+    }
+  }
+}
+$("#revealed-pixels").text(revealedPixels);
+$(".isButton").click(function(e) {
+  if ($(this).attr("count") === "0") {
+    $($(this).attr("spoiler")).removeClass("hidden");
+    $(this).remove();
+  } else {
+    $(this).text(" Showing hint after " + $(this).attr("count") + " more clicks");
+    $(this).attr("count", $(this).attr("count") - 1);
+  }
+});
+
+canvas.addEventListener("mousedown", function(e) {
+  var mousePos = getMousePos(canvas, e);
+  sendRequest(mousePos.x, mousePos.y);
+}, false);
+
+canvas.addEventListener("mousemove", function(e) {
+  var mousePos = getMousePos(canvas, e);
+  // sendRequest(mousePos.x, mousePos.y);
+  $("#current-pixel").text("(" + parseInt(mousePos.x) + ", " + parseInt(mousePos.y) + ")");
+}, false);
+
+canvas.addEventListener("mouseout", function(e) {
+  $("#current-pixel").text("out of bounds");
+})

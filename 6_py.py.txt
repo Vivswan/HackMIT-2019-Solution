@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import pickle
+import json
+import imageio
+from collections import Counter
+import base64
+import numpy as np
+import random
+from matplotlib import pyplot as plt
+
+TRAINFILE = "cifar-100-python/train"
+TESTFILE = "cifar-100-python/test"
+PREDICTIONSFILE = "predictions_sorted.ndjson"
+CATEGORIES = 100
+NEEDED = 1000
+
+def main():
+    dataToCategory = {}
+    with open(TRAINFILE, "rb") as f:
+        data = pickle.load(f, encoding="latin1")
+        print(len(data["fine_labels"]))
+        dataToCategory.update((data["data"][i].reshape((3, 32, 32)).transpose((1, 2, 0)).tobytes(), data["fine_labels"][i]) for i in range(len(data["fine_labels"])))
+    with open(TESTFILE, "rb") as f:
+        data = pickle.load(f, encoding="latin1")
+        print(len(data["fine_labels"]))
+        dataToCategory.update((data["data"][i].reshape((3, 32, 32)).transpose((1, 2, 0)).tobytes(), data["fine_labels"][i]) for i in range(len(data["fine_labels"])))
+    del data
+    predictions = []
+    with open(PREDICTIONSFILE, "r") as f:
+        for line in f:
+            if line == "": continue
+            data = json.loads(line)
+            pngbytes = base64.b64decode(data["image"])
+            image = imageio.imread(pngbytes)
+            imagebytes = image.tobytes()
+            groundtruth = dataToCategory[imagebytes]
+            predictions.append((imagebytes, groundtruth, data["prediction"], data["objectid"]))
+    statistics = [[] for _ in range(CATEGORIES)]
+    for _, groundtruth, prediction, _ in predictions:
+        statistics[groundtruth].append(prediction[groundtruth])
+    statistics = [np.average(i) for i in statistics]
+    solution = [(prediction[gt], id_) for _, gt, prediction, id_ in predictions if statistics[gt] < 0.5]
+    solution.sort(reverse=True)
+    with open("solution.csv", "w") as f:
+        f.write(",".join(id for _, id in solution[:NEEDED]))
+
+if __name__ == "__main__":
+    main()

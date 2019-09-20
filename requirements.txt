@@ -1,0 +1,6 @@
+pillow
+numpy
+tensorflow
+opencv
+tensorflow-gpu
+requests

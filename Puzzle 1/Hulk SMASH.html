@@ -1,0 +1,65 @@
+
+<!-- saved from url=(0046)https://smash.hackvengers.dev/u/Vivswan_2b536d -->
+<html><!-- Made with love by TheReddKing --><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="./Hulk SMASH_files/materialize.min.css">
+  <link rel="stylesheet" href="./Hulk SMASH_files/index.css">
+  <link rel="shortcut icon" href="https://smash.hackvengers.dev/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="https://smash.hackvengers.dev/favicon.ico" type="image/x-icon">
+  <script src="./Hulk SMASH_files/materialize.min.js.download"></script>
+  <script src="./Hulk SMASH_files/jquery-3.4.1.min.js.download"></script>
+  <title>Hulk SMASH</title>
+</head>
+
+<body>
+  <center>
+    <div class="full flex">
+      <div class="black negative-margin">
+        <h2 class="card-content white-text"> Hulk needs some help </h2>
+        <p class="white-text"> Hulk wants to see what's behind that wall, but he's not making much progress with it...</p>
+        <p class="white-text"> Can you help him out? </p>
+        <br>
+      </div>
+      <canvas id="canvas" width="400" height="300" style="border: 1px solid white;"></canvas>
+      <footer class="black full">
+        <br>
+        <button class="btn isButton green" count="10" spoiler="#spoiler1"> Give me a hint! </button>
+        <div id="spoiler1" class="hidden">
+          <p class="white-text"> Hint: Command/Ctrl and "+" help zoom in your browser. Inspect element also can be helpful. </p>
+          <button class="btn isButton green" count="50" spoiler="#spoiler2"> Show another hint </button>
+          <div id="spoiler2" class="hidden">
+            <p class="white-text"> Hint: Did you know you can also edit JavaScript files live? </p>
+            <button class="btn isButton green" count="1000" spoiler="#spoiler3"> Show my final hint! </button>
+            <!-- If you clicked 1000 times then give me a high five... oh wait you can't -->
+            <div id="spoiler3" class="hidden">
+              <p class="white-text"> Hmmm, I feel like you punch more than you actually give yourself credit for... </p>
+              <p class="white-text"> Technical Nit: There is a rate limit of 60 api calls per 1 minute lol so don't get too excited.</p>
+              <!-- You don't even need to call the API more than 12 times... -->
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary green" onclick="setTimeout(resetPuzzle,100)"> Restart Puzzle </button>
+        <br>
+      </footer>
+    </div>
+
+    <div class="smash hidden" id="smash-div">
+      <img src="./Hulk SMASH_files/smash.png" alt="smash fist">
+    </div>
+
+  </center>
+  <div class="helper">
+    <div class="card green darken-1">
+      <div class="card-content white-text sizable-small">
+        <span class="card-title sizable-big">pixel coverage</span>
+        <p>You have revealed: <span id="revealed-pixels">119872</span>/120000 pixels</p>
+        <p><span id="current-pixel">(79, 38)</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./Hulk SMASH_files/canvas.js.download" charset="utf-8"></script>
+
+
+
+</body></html>
