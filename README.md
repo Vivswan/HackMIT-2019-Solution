@@ -1,1 +1,1 @@
-"# HackMIT-2019-Solution" 
+# HackMIT 2019 Puzzles Solution
