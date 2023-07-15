@@ -1,2 +1,0 @@
-dump40K.tar.gz filter=lfs diff=lfs merge=lfs -text
-predictions-40K.tar.gz filter=lfs diff=lfs merge=lfs -text
